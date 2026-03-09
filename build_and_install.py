@@ -81,6 +81,9 @@ def collect(builder_exe: Path, engine_exe: Path) -> Path:
 def install(dist: Path):
     print(f"\n=== Installing to {INSTALL} ===")
     INSTALL.mkdir(parents=True, exist_ok=True)
+    games_dir = INSTALL / "GAMES"
+    games_dir.mkdir(exist_ok=True)
+    print(f"  Created {games_dir}")
     for exe in dist.glob("*.exe"):
         dest = INSTALL / exe.name
         shutil.copy2(exe, dest)
