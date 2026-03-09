@@ -4,3 +4,6 @@
 [submodule "SUBMODULES/RD_FileGameBuilder"]
 	path = SUBMODULES/RD_FileGameBuilder
 	url = https://github.com/recluse-audio/RD_FileGameBuilder
+[submodule "SUBMODULES/RD_FileGames"]
+	path = SUBMODULES/RD_FileGames
+	url = https://github.com/recluse-audio/RD_FileGames.git
