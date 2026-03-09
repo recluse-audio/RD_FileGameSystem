@@ -1,0 +1,6 @@
+[submodule "SUBMODULES/RD_FileGameEngine"]
+	path = SUBMODULES/RD_FileGameEngine
+	url = https://github.com/recluse-audio/RD_FileGameEngine
+[submodule "SUBMODULES/RD_FileGameBuilder"]
+	path = SUBMODULES/RD_FileGameBuilder
+	url = https://github.com/recluse-audio/RD_FileGameBuilder
