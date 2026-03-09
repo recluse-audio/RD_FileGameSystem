@@ -37,7 +37,19 @@ def python():
 
 def build_builder():
     print("\n=== Building RD_FileGameBuilder ===")
-    run([python(), "build_executable_file_game_builder.py"], BUILDER)
+    run([
+        python(), "-m", "PyInstaller",
+        "--onefile",
+        "--windowed",
+        "--name", "FileGameBuilder",
+        "--distpath", "BUILD",
+        "--workpath", "BUILD/_work",
+        "--specpath", "BUILD",
+        "--hidden-import", "PIL",
+        "--hidden-import", "PIL.Image",
+        "--hidden-import", "PIL.ImageTk",
+        "view_data_layout.py",
+    ], BUILDER)
     exe = BUILDER / "BUILD" / "FileGameBuilder.exe"
     if not exe.exists():
         sys.exit(f"ERROR: expected output not found: {exe}")
