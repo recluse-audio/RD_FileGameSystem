@@ -25,6 +25,24 @@ If you already cloned without submodules:
 git submodule update --init --recursive
 ```
 
+## Build & Install
+
+`build_and_install.py` builds both products, collects the executables into `DIST/`, and optionally installs them to `C:/FILE_GAMES`.
+
+**Requirements:** Python 3, CMake, a C++ compiler (MSVC or MinGW), PyInstaller (`pip install pyinstaller`).
+
+```bash
+# Build only — outputs to DIST/
+python build_and_install.py
+
+# Build + install to C:/FILE_GAMES
+python build_and_install.py --install
+```
+
+Outputs:
+- `DIST/FileGameBuilder.exe`
+- `DIST/GameEngine_Raylib.exe`
+
 ## Updating Submodules
 
 ```bash
