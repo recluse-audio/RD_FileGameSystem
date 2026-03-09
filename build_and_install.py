@@ -27,8 +27,18 @@ def run(cmd, cwd):
     subprocess.run(cmd, cwd=str(cwd), check=True)
 
 
+def ensure_pyinstaller():
+    try:
+        import importlib
+        importlib.import_module("PyInstaller")
+    except ImportError:
+        print("PyInstaller not found — installing...")
+        run([sys.executable, "-m", "pip", "install", "pyinstaller"], ROOT)
+
+
 def build_builder():
     print("\n=== Building RD_FileGameBuilder ===")
+    ensure_pyinstaller()
     run([sys.executable, "build_executable_file_game_builder.py"], BUILDER)
     exe = BUILDER / "BUILD" / "FileGameBuilder.exe"
     if not exe.exists():
