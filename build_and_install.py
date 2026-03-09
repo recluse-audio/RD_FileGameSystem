@@ -6,23 +6,23 @@ and optionally install them to C:/FILE_GAMES.
 Usage:
     python build_and_install.py           # build only
     python build_and_install.py --install # build + install
+
+Run setup_env.py first to create the venv and install dependencies.
 """
 
 import argparse
 import shutil
 import subprocess
 import sys
-import venv
 from pathlib import Path
 
-ROOT      = Path(__file__).parent
-SUBS      = ROOT / "SUBMODULES"
-ENGINE    = SUBS / "RD_FileGameEngine"
-BUILDER   = SUBS / "RD_FileGameBuilder"
-DIST      = ROOT / "DIST"
-INSTALL   = Path("C:/FILE_GAMES")
-VENV_DIR  = ROOT / ".venv"
-VENV_PY   = VENV_DIR / "Scripts" / "python.exe"
+ROOT     = Path(__file__).parent
+SUBS     = ROOT / "SUBMODULES"
+ENGINE   = SUBS / "RD_FileGameEngine"
+BUILDER  = SUBS / "RD_FileGameBuilder"
+DIST     = ROOT / "DIST"
+INSTALL  = Path("C:/FILE_GAMES")
+VENV_PY  = ROOT / ".venv" / "Scripts" / "python.exe"
 
 
 def run(cmd, cwd):
@@ -30,18 +30,14 @@ def run(cmd, cwd):
     subprocess.run(cmd, cwd=str(cwd), check=True)
 
 
-def ensure_venv():
-    if not VENV_PY.exists():
-        print(f"Creating venv at {VENV_DIR} ...")
-        venv.create(str(VENV_DIR), with_pip=True)
-    print("Installing PyInstaller into venv ...")
-    run([str(VENV_PY), "-m", "pip", "install", "--quiet", "pyinstaller"], ROOT)
+def python():
+    """Use venv python if available, otherwise system python."""
+    return str(VENV_PY) if VENV_PY.exists() else sys.executable
 
 
 def build_builder():
     print("\n=== Building RD_FileGameBuilder ===")
-    ensure_venv()
-    run([str(VENV_PY), "build_executable_file_game_builder.py"], BUILDER)
+    run([python(), "build_executable_file_game_builder.py"], BUILDER)
     exe = BUILDER / "BUILD" / "FileGameBuilder.exe"
     if not exe.exists():
         sys.exit(f"ERROR: expected output not found: {exe}")
@@ -50,8 +46,7 @@ def build_builder():
 
 def build_engine():
     print("\n=== Building RD_FileGameEngine ===")
-    run([sys.executable, "SCRIPTS/build_raylib.py"], ENGINE)
-    # MSVC puts the exe under BUILD/Release/; MinGW puts it directly in BUILD/
+    run([python(), "SCRIPTS/build_raylib.py"], ENGINE)
     for candidate in [
         ENGINE / "BUILD" / "Release" / "GameEngine_Raylib.exe",
         ENGINE / "BUILD" / "GameEngine_Raylib.exe",
