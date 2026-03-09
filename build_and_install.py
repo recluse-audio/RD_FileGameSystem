@@ -12,6 +12,7 @@ import argparse
 import shutil
 import subprocess
 import sys
+import venv
 from pathlib import Path
 
 ROOT      = Path(__file__).parent
@@ -20,6 +21,8 @@ ENGINE    = SUBS / "RD_FileGameEngine"
 BUILDER   = SUBS / "RD_FileGameBuilder"
 DIST      = ROOT / "DIST"
 INSTALL   = Path("C:/FILE_GAMES")
+VENV_DIR  = ROOT / ".venv"
+VENV_PY   = VENV_DIR / "Scripts" / "python.exe"
 
 
 def run(cmd, cwd):
@@ -27,19 +30,18 @@ def run(cmd, cwd):
     subprocess.run(cmd, cwd=str(cwd), check=True)
 
 
-def ensure_pyinstaller():
-    try:
-        import importlib
-        importlib.import_module("PyInstaller")
-    except ImportError:
-        print("PyInstaller not found — installing...")
-        run([sys.executable, "-m", "pip", "install", "pyinstaller"], ROOT)
+def ensure_venv():
+    if not VENV_PY.exists():
+        print(f"Creating venv at {VENV_DIR} ...")
+        venv.create(str(VENV_DIR), with_pip=True)
+    print("Installing PyInstaller into venv ...")
+    run([str(VENV_PY), "-m", "pip", "install", "--quiet", "pyinstaller"], ROOT)
 
 
 def build_builder():
     print("\n=== Building RD_FileGameBuilder ===")
-    ensure_pyinstaller()
-    run([sys.executable, "build_executable_file_game_builder.py"], BUILDER)
+    ensure_venv()
+    run([str(VENV_PY), "build_executable_file_game_builder.py"], BUILDER)
     exe = BUILDER / "BUILD" / "FileGameBuilder.exe"
     if not exe.exists():
         sys.exit(f"ERROR: expected output not found: {exe}")
