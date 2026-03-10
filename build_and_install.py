@@ -16,13 +16,17 @@ import subprocess
 import sys
 from pathlib import Path
 
-ROOT     = Path(__file__).parent
-SUBS     = ROOT / "SUBMODULES"
-ENGINE   = SUBS / "RD_FileGameEngine"
-BUILDER  = SUBS / "RD_FileGameBuilder"
-DIST     = ROOT / "DIST"
-INSTALL  = Path("C:/FILE_GAMES")
-VENV_PY  = ROOT / ".venv" / "Scripts" / "python.exe"
+sys.path.insert(0, str(Path(__file__).parent / "SUBMODULES" / "RD_FileGameBuilder"))
+from file_game_builder import refresh_game_data
+
+ROOT      = Path(__file__).parent
+SUBS      = ROOT / "SUBMODULES"
+ENGINE    = SUBS / "RD_FileGameEngine"
+BUILDER   = SUBS / "RD_FileGameBuilder"
+GAMES_SRC = SUBS / "RD_FileGames"
+DIST      = ROOT / "DIST"
+INSTALL   = Path("C:/FILE_GAMES")
+VENV_PY   = ROOT / ".venv" / "Scripts" / "python.exe"
 
 
 def run(cmd, cwd):
@@ -83,12 +87,29 @@ def install(dist: Path):
     INSTALL.mkdir(parents=True, exist_ok=True)
     games_dir = INSTALL / "GAMES"
     games_dir.mkdir(exist_ok=True)
-    print(f"  Created {games_dir}")
     for exe in dist.glob("*.exe"):
         dest = INSTALL / exe.name
         shutil.copy2(exe, dest)
         print(f"  {exe.name}  ->  {dest}")
+    if GAMES_SRC.is_dir():
+        for game in sorted(GAMES_SRC.iterdir()):
+            if not game.is_dir() or game.name.startswith("."):
+                continue
+            dest = games_dir / game.name
+            if dest.exists():
+                shutil.rmtree(dest)
+            shutil.copytree(game, dest)
+            print(f"  {game.name}/  ->  {dest}")
     print("Install complete.")
+
+
+def refresh_games():
+    print("\n=== Refreshing game data ===")
+    for game in sorted(GAMES_SRC.iterdir()):
+        if not game.is_dir() or game.name.startswith("."):
+            continue
+        print(f"  {game.name}:")
+        refresh_game_data.run(str(game))
 
 
 def main():
@@ -96,6 +117,7 @@ def main():
     parser.add_argument("--install", action="store_true", help="Install executables to C:/FILE_GAMES after building.")
     args = parser.parse_args()
 
+    refresh_games()
     builder_exe = build_builder()
     engine_exe  = build_engine()
     dist        = collect(builder_exe, engine_exe)
